@@ -16,9 +16,9 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
-import { removeFromCart, openCheckout } from "../store/slices/productsSlice";
-import type { RootState, AppDispatch } from "../store/store";
-import type { CartItem } from "../store/slices/productsSlice";
+import { removeFromCart, openCheckout } from "../../store/slices/productsSlice";
+import type { RootState, AppDispatch } from "../../store/store";
+import type { CartItem } from "../../store/slices/productsSlice";
 
 const Cart = () => {
   const dispatch = useDispatch<AppDispatch>();

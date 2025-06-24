@@ -1,27 +1,31 @@
 import { Provider } from "react-redux";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import Container from "@mui/material/Container";
 import store from "./store/store";
-import ShoppingForm from "./components/ShoppingForm";
-import Cart from "./components/Cart";
 import Header from "./components/Header";
-import CheckoutForm from "./components/CheckoutForm";
+import Checkout from "./components/CheckoutForm";
 import { theme } from "./theme";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Shopping } from "./components/Shopping";
 
 function App() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { refetchOnWindowFocus: false, refetchOnMount: false },
+    },
+  });
+
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <div dir="rtl">
+        <QueryClientProvider client={queryClient}>
+          <ReactQueryDevtools initialIsOpen={false} />
+          <CssBaseline />
           <Header />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <ShoppingForm />
-            <Cart />
-          </Container>
-          <CheckoutForm />
-        </div>
+          <Shopping />
+          <Checkout />
+        </QueryClientProvider>
       </ThemeProvider>
     </Provider>
   );

@@ -1,7 +1,6 @@
 import React, { forwardRef } from "react";
 import {
   Box,
-  FormHelperText,
   InputAdornment,
   InputLabel,
   OutlinedInput,
@@ -13,6 +12,7 @@ import {
   FieldError,
   FieldValues,
 } from "react-hook-form";
+import { WithError } from "../Globals/WithError";
 
 export interface ITextInput {
   tooltip?: string;
@@ -68,43 +68,28 @@ export const TextInput = forwardRef<HTMLInputElement, ITextInput>(
             </InputLabel>
           </Box>
         </Box>
-        <OutlinedInput
-          inputRef={ref}
-          aria-labelledby={`${id}-${props.label}`}
-          aria-describedby={`${id}-helper-text`}
-          aria-required={!!required}
-          error={Boolean(error?.message)}
-          {...inputProps}
-          label={props.label}
-          placeholder={props.placeholder}
-          sx={{
-            width: "100%",
-            backgroundColor: "#fff",
-            ...props.sx,
-          }}
-          endAdornment={
-            props.icon && <InputAdornment position="end">{icon}</InputAdornment>
-          }
-        />
-        <Box position={"relative"}>
-          <FormHelperText
-            id={`${id}-helper-text`}
+        <WithError errorMsg={error?.message}>
+          <OutlinedInput
+            inputRef={ref}
+            aria-labelledby={`${id}-${props.label}`}
+            aria-describedby={`${id}-helper-text`}
+            aria-required={!!required}
             error={Boolean(error?.message)}
+            {...inputProps}
+            label={props.label}
+            placeholder={props.placeholder}
             sx={{
-              position: "absolute",
-              lineHeight: "1.5",
-              m: 0,
-              paddingInlineStart: "2px",
-              textAlign: "start",
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-              top: "2px",
+              width: "100%",
+              backgroundColor: "#fff",
+              ...props.sx,
             }}
-          >
-            {Boolean(error?.message) ? error!.message! : undefined}
-          </FormHelperText>
-        </Box>
+            endAdornment={
+              props.icon && (
+                <InputAdornment position="end">{icon}</InputAdornment>
+              )
+            }
+          />
+        </WithError>
       </Box>
     );
   }

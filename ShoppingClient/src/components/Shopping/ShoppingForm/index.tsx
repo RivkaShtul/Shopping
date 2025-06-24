@@ -12,28 +12,33 @@ import {
   IconButton,
   Snackbar,
   Alert,
+  styled,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
-import { ControlledSelect } from "../Inputs/CustomSelect";
-import { ControlledInput } from "../Inputs/CustomInput";
-import { ControlledAutoComplete } from "../Inputs/ControlledAutoComplete";
-import { addToCart } from "../../store/slices/productsSlice";
-import type { AppDispatch } from "../../store/store";
+import {
+  ControlledSelect,
+  ControlledInput,
+  ControlledAutoComplete,
+} from "../../Inputs";
+import { addToCart } from "../../../store/slices/productsSlice";
+import type { AppDispatch } from "../../../store/store";
 import {
   useCategories,
   useProductsByCategory,
-} from "../../hooks/useShoppingProducts";
+} from "../../../hooks/useShoppingProducts";
 import { shoppingSchema } from "./FormDataAndSchema/FormSchema";
 import { defaultValues, ShoppingFormData } from "./FormDataAndSchema/FormData";
+import { PriceDisplay } from "./PriceDisplay";
+import { SnackbarMessage } from "../../SnackbarMessage";
 
 const ShoppingForm = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
 
   // React Query hooks
-  const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const { data: categories } = useCategories();
 
   const methods = useForm<ShoppingFormData>({
     resolver: yupResolver(shoppingSchema),
@@ -87,8 +92,6 @@ const ShoppingForm = () => {
       searchKeys: [product.productName], // Allow searching by product name
     })) || [];
 
-  if (categoriesLoading || !categories.length) return <></>;
-
   return (
     <>
       <Card sx={{ mb: 4 }}>
@@ -129,14 +132,7 @@ const ShoppingForm = () => {
                   />
                 </Grid>
                 <Grid item md={3} alignSelf="end">
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      justifyContent: "center",
-                    }}
-                  >
+                  <QuantityWrapper>
                     <IconButton
                       onClick={() =>
                         setValue("quantity", Math.max(1, quantity - 1))
@@ -168,43 +164,16 @@ const ShoppingForm = () => {
                     >
                       <AddIcon />
                     </IconButton>
-                  </Box>
+                  </QuantityWrapper>
                 </Grid>
               </Grid>
 
               {/* Price Display */}
               {selectedProduct && (
-                <Box
-                  sx={{
-                    mt: 3,
-                    p: 2,
-                    backgroundColor: "grey.50",
-                    borderRadius: 1,
-                  }}
-                >
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} sm={4}>
-                      <Typography variant="body1">
-                        <strong>מחיר יחידה:</strong> ₪{productPrice.toFixed(2)}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <Typography variant="body1">
-                        <strong>כמות:</strong> {quantity}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <Typography
-                        variant="h6"
-                        color="primary.main"
-                        sx={{ fontWeight: "bold" }}
-                      >
-                        <strong>סה"כ:</strong> ₪
-                        {(productPrice * quantity).toFixed(2)}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </Box>
+                <PriceDisplay
+                  productPrice={selectedProduct.price}
+                  quantity={quantity}
+                />
               )}
 
               <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
@@ -220,7 +189,7 @@ const ShoppingForm = () => {
                     minWidth: 200,
                   }}
                 >
-                  הוסף לעגלה
+                  {"הוסף לעגלה"}
                 </Button>
               </Box>
             </FormProvider>
@@ -228,22 +197,22 @@ const ShoppingForm = () => {
         </CardContent>
       </Card>
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
+      <SnackbarMessage
+        isOpen={snackbarOpen}
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          המוצר נוסף לעגלה בהצלחה!
-        </Alert>
-      </Snackbar>
+        severity="success"
+        message="המוצר נוסף לעגלה בהצלחה!"
+      />
     </>
   );
 };
 
 export default ShoppingForm;
+
+const QuantityWrapper = styled(Box)({
+  display: "flex",
+  alignItems: "center",
+  gap: 3,
+  justifyContent: "center",
+  width: "168px",
+});

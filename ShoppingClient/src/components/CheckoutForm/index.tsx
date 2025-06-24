@@ -1,3 +1,4 @@
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm, FormProvider } from "react-hook-form";
@@ -11,12 +12,10 @@ import {
   CardContent,
   Typography,
   Button,
-  Box,
   Grid,
   CircularProgress,
 } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CloseIcon from "@mui/icons-material/Close";
 import { ControlledInput } from "../Inputs/CustomInput";
 import { closeCheckout, clearCart } from "../../store/slices/productsSlice";
@@ -28,14 +27,18 @@ import {
 import { checkoutSchema } from "./FormDataAndSchema/FormSchema";
 import { useOrder } from "../../api/order";
 import { OrderSummary } from "./OrderSummary";
+import { SuccessMessage } from "./SuccessMessage";
+import { SnackbarMessage } from "../SnackbarMessage";
 
-const CheckoutForm = () => {
+const Checkout = () => {
   const { mutate: mutateOrder, isPending } = useOrder();
   const dispatch = useDispatch<AppDispatch>();
   const { isCheckoutOpen, cart } = useSelector(
     (state: RootState) => state.products
   );
-  const [orderSuccess, setOrderSuccess] = useState<boolean>(false);
+  const [orderSuccess, setOrderSuccess] = useState<boolean | undefined>(
+    undefined
+  );
   const methods = useForm<CheckoutFormData>({
     resolver: yupResolver(checkoutSchema),
     defaultValues: defaultCheckoutFormData,
@@ -45,6 +48,7 @@ const CheckoutForm = () => {
   const handleClose = () => {
     if (!isPending) {
       dispatch(closeCheckout());
+      setOrderSuccess(undefined);
       reset();
     }
   };
@@ -63,6 +67,7 @@ const CheckoutForm = () => {
           reset();
         },
         onError: (error: any) => {
+          setOrderSuccess(false);
           console.error("Error submitting order:", error);
         },
       }
@@ -96,17 +101,7 @@ const CheckoutForm = () => {
 
         <DialogContent>
           {orderSuccess ? (
-            <Box sx={{ textAlign: "center", py: 4 }}>
-              <CheckCircleIcon
-                sx={{ fontSize: 64, color: "success.main", mb: 2 }}
-              />
-              <Typography variant="h4" color="success.main" gutterBottom>
-                ההזמנה נשלחה בהצלחה!
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                תודה על הזמנתך. נעדכן אותך בקרוב על סטטוס ההזמנה.
-              </Typography>
-            </Box>
+            <SuccessMessage />
           ) : (
             <form onSubmit={handleSubmit(onSubmit)}>
               {/* Customer Information Section */}
@@ -193,8 +188,14 @@ const CheckoutForm = () => {
           </DialogActions>
         )}
       </Dialog>
+      <SnackbarMessage
+        isOpen={orderSuccess === false}
+        onClose={() => setOrderSuccess(undefined)}
+        severity="error"
+        message="אירעה שגיאה, אנא נסה שינית"
+      />
     </>
   );
 };
 
-export default CheckoutForm;
+export default Checkout;

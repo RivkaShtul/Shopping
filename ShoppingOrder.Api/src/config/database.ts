@@ -12,7 +12,7 @@ const connectDB = async (): Promise<void> => {
       console.log("Please check your .env file and ensure MONGODB_URI is set");
       process.exit(1);
     }
-    console.log("🔄 Connecting to MongoDB...");
+    console.log("Connecting to MongoDB...");
 
     const conn = await mongoose.connect(mongoURI, {
       serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
